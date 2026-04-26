@@ -1,5 +1,20 @@
 [
   {
+    "version": "0.18.2",
+    "date": "2026-04-26",
+    "summary": "This release adds session type filters for subscriptions, paginated remote session discovery, and configurable per-request message limits.",
+    "changes": [
+      {
+        "type": "feat",
+        "items": [
+          "Add session type filtering and selection when subscribing to sessions.",
+          "Add paginated remote session discovery with on-demand loading.",
+          "Allow each data source to configure how many messages are fetched per request."
+        ]
+      }
+    ]
+  },
+  {
     "version": "0.18.1",
     "date": "2026-04-24",
     "summary": "This release adds DeepSeek V4 support and a launch-at-startup option, improves the settings and overall UI experience, and fixes how links open in AI chat.<br/>Starting with this release, the project is officially moving to the ChatLab organization.",
