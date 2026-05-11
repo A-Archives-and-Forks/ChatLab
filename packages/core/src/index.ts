@@ -48,3 +48,15 @@ export type {
   MessageResult,
   PaginatedMessages,
 } from './query'
+
+// Schema 与迁移
+export {
+  CURRENT_SCHEMA_VERSION,
+  CHAT_DB_SCHEMA,
+  FTS_TABLE_SCHEMA,
+  getSchemaVersion,
+  setSchemaVersion,
+  needsMigration,
+  runMigrations,
+} from './schema'
+export type { Migration } from './schema'
