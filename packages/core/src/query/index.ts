@@ -25,9 +25,17 @@ export type {
 } from './basic-queries'
 
 export {
+  queryMessages,
   searchMessagesLike,
   getRecentMessages,
   getMembers,
+  getMembersDetailed,
   executeReadonlySql,
 } from './message-queries'
-export type { MessageResult, PaginatedMessages } from './message-queries'
+export type {
+  QueryMessagesOptions,
+  QueryMessagesResult,
+  MessageResult,
+  PaginatedMessages,
+  MemberDetailed,
+} from './message-queries'

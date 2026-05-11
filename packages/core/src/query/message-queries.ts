@@ -23,6 +23,112 @@ export interface PaginatedMessages {
   total?: number
 }
 
+export interface QueryMessagesOptions {
+  keyword?: string
+  startTs?: number
+  endTs?: number
+  senderId?: number
+  limit?: number
+  offset?: number
+}
+
+export interface QueryMessagesResult {
+  messages: MessageResult[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+/**
+ * 通用分页消息查询
+ * 支持关键词、时间范围、发送者过滤
+ */
+export function queryMessages(
+  db: DatabaseAdapter,
+  options?: QueryMessagesOptions
+): QueryMessagesResult {
+  const limit = Math.min(1000, Math.max(1, options?.limit ?? 100))
+  const offset = options?.offset ?? 0
+  const page = Math.floor(offset / limit) + 1
+
+  const conditions: string[] = ["COALESCE(m.account_name, '') != '系统消息'"]
+  const params: unknown[] = []
+
+  if (options?.keyword) {
+    conditions.push('msg.content LIKE ?')
+    params.push(`%${options.keyword}%`)
+  }
+  if (options?.startTs !== undefined) {
+    conditions.push('msg.ts >= ?')
+    params.push(options.startTs)
+  }
+  if (options?.endTs !== undefined) {
+    conditions.push('msg.ts <= ?')
+    params.push(options.endTs)
+  }
+  if (options?.senderId !== undefined) {
+    conditions.push('msg.sender_id = ?')
+    params.push(options.senderId)
+  }
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
+
+  const countRow = db
+    .prepare(
+      `SELECT COUNT(*) as total
+       FROM message msg
+       JOIN member m ON msg.sender_id = m.id
+       ${where}`
+    )
+    .get(...params) as { total: number }
+
+  const rows = db
+    .prepare(
+      `SELECT
+        msg.id as id,
+        m.id as senderId,
+        COALESCE(m.group_nickname, m.account_name, m.platform_id) as senderName,
+        m.platform_id as senderPlatformId,
+        msg.content as content,
+        msg.ts as timestamp,
+        msg.type as type
+      FROM message msg
+      JOIN member m ON msg.sender_id = m.id
+      ${where}
+      ORDER BY msg.ts DESC
+      LIMIT ? OFFSET ?`
+    )
+    .all(...params, limit, offset) as Array<{
+    id: number
+    senderId: number
+    senderName: string
+    senderPlatformId: string
+    content: string
+    timestamp: number
+    type: number
+  }>
+
+  const messages = rows.map((row) => ({
+    id: Number(row.id),
+    senderId: Number(row.senderId),
+    senderName: String(row.senderName || ''),
+    senderPlatformId: String(row.senderPlatformId || ''),
+    content: row.content != null ? String(row.content) : '',
+    timestamp: Number(row.timestamp),
+    type: Number(row.type),
+  }))
+
+  const total = countRow.total
+  return {
+    messages,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  }
+}
+
 /**
  * 基于 LIKE 的简单关键词搜索
  * 不依赖 FTS 索引，适用于 CLI/MCP 场景
@@ -148,6 +254,47 @@ export function getMembers(
       ORDER BY messageCount DESC`
     )
     .all() as Array<{ id: number; platformId: string; name: string; messageCount: number }>
+}
+
+export interface MemberDetailed {
+  id: number
+  platformId: string
+  accountName: string
+  groupNickname: string | null
+  messageCount: number
+}
+
+/**
+ * 获取完整字段的成员列表（含 accountName、groupNickname）
+ */
+export function getMembersDetailed(db: DatabaseAdapter): MemberDetailed[] {
+  const rows = db
+    .prepare(
+      `SELECT
+        m.id as id,
+        m.platform_id as platformId,
+        COALESCE(m.account_name, m.platform_id) as accountName,
+        m.group_nickname as groupNickname,
+        (SELECT COUNT(*) FROM message WHERE sender_id = m.id) as messageCount
+      FROM member m
+      WHERE COALESCE(m.account_name, '') != '系统消息'
+      ORDER BY messageCount DESC`
+    )
+    .all() as Array<{
+    id: number
+    platformId: string
+    accountName: string
+    groupNickname: string | null
+    messageCount: number
+  }>
+
+  return rows.map((row) => ({
+    id: Number(row.id),
+    platformId: String(row.platformId),
+    accountName: String(row.accountName || row.platformId),
+    groupNickname: row.groupNickname ? String(row.groupNickname) : null,
+    messageCount: Number(row.messageCount),
+  }))
 }
 
 /**

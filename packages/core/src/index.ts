@@ -29,9 +29,11 @@ export {
   getDailyActivity,
   getWeekdayActivity,
   getMessageTypeStats,
+  queryMessages,
   searchMessagesLike,
   getRecentMessages,
   getMembers,
+  getMembersDetailed,
   executeReadonlySql,
 } from './query'
 
@@ -45,8 +47,11 @@ export type {
   DailyActivity,
   WeekdayActivity,
   MessageTypeStats,
+  QueryMessagesOptions,
+  QueryMessagesResult,
   MessageResult,
   PaginatedMessages,
+  MemberDetailed,
 } from './query'
 
 // Schema 与迁移
