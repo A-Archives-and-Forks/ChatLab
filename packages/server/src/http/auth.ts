@@ -27,6 +27,9 @@ function safeTokenCompare(a: string, b: string): boolean {
 export async function authHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   if (!cachedToken) return
 
+  // /_web/ 内部 API 不需要认证（仅限同源 Web UI 使用）
+  if (request.url.startsWith('/_web/')) return
+
   const authHeader = request.headers.authorization
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     const err = unauthorized()

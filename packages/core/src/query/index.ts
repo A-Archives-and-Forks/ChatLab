@@ -1,14 +1,10 @@
 export { buildTimeFilter, buildSystemMessageFilter } from './filters'
 
-export {
-  isChatSessionDb,
-  getSessionMeta,
-  getSessionOverview,
-  getDatabaseSchema,
-} from './session-queries'
+export { isChatSessionDb, getSessionMeta, getSessionOverview, getDatabaseSchema } from './session-queries'
 export type { SessionMeta, SessionOverview, SessionInfo } from './session-queries'
 
 export {
+  getTimeRange,
   getAvailableYears,
   getMemberActivity,
   getHourlyActivity,
@@ -16,13 +12,7 @@ export {
   getWeekdayActivity,
   getMessageTypeStats,
 } from './basic-queries'
-export type {
-  MemberActivity,
-  HourlyActivity,
-  DailyActivity,
-  WeekdayActivity,
-  MessageTypeStats,
-} from './basic-queries'
+export type { MemberActivity, HourlyActivity, DailyActivity, WeekdayActivity, MessageTypeStats } from './basic-queries'
 
 export {
   queryMessages,

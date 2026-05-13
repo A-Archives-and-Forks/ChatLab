@@ -23,6 +23,7 @@ export {
   getSessionMeta,
   getSessionOverview,
   getDatabaseSchema,
+  getTimeRange,
   getAvailableYears,
   getMemberActivity,
   getHourlyActivity,

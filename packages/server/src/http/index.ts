@@ -16,6 +16,7 @@ import { createServer } from './server'
 import { setAuthToken } from './auth'
 import { registerSystemRoutes } from './routes/system'
 import { registerSessionRoutes } from './routes/sessions'
+import { registerWebRoutes } from './routes/web'
 
 let server: FastifyInstance | null = null
 let dbManager: DatabaseManager | null = null
@@ -85,6 +86,7 @@ export async function startHttpServer(options?: HttpServerOptions): Promise<{
   server = createServer()
   registerSystemRoutes(server, dbManager)
   registerSessionRoutes(server, dbManager)
+  registerWebRoutes(server, dbManager)
 
   await server.listen({ port, host })
 
@@ -111,3 +113,4 @@ export async function stopHttpServer(): Promise<void> {
 export { createServer } from './server'
 export { registerSystemRoutes } from './routes/system'
 export { registerSessionRoutes } from './routes/sessions'
+export { registerWebRoutes } from './routes/web'

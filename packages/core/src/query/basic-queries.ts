@@ -39,6 +39,17 @@ export interface MessageTypeStats {
 }
 
 /**
+ * 获取消息时间范围
+ */
+export function getTimeRange(db: DatabaseAdapter): { start: number; end: number } | null {
+  const row = db.prepare('SELECT MIN(ts) as start, MAX(ts) as end FROM message').get() as
+    | { start: number | null; end: number | null }
+    | undefined
+  if (!row || row.start == null || row.end == null) return null
+  return { start: row.start, end: row.end }
+}
+
+/**
  * 获取可用的年份列表
  */
 export function getAvailableYears(db: DatabaseAdapter): number[] {

@@ -28,8 +28,8 @@ export async function initAdapter(): Promise<QueryAdapter> {
     // Phase 3B: BrowserSqlAdapter
     throw new Error('BrowserSqlAdapter is not yet implemented.')
   } else {
-    // Phase 3A: FetchAdapter
-    throw new Error('FetchAdapter is not yet implemented.')
+    const { FetchAdapter } = await import('./fetch')
+    _adapter = new FetchAdapter()
   }
 
   return _adapter!
