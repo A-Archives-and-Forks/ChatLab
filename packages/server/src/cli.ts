@@ -285,7 +285,7 @@ program
 program
   .command('serve')
   .description('启动独立 HTTP API 服务')
-  .option('--port <port>', '服务端口', '3210')
+  .option('--port <port>', '服务端口', '3110')
   .option('--host <host>', '监听地址', '127.0.0.1')
   .option('--token <token>', '自定义 Bearer Token（不指定则从配置文件读取或自动生成）')
   .option('--web [dir]', '托管 Web 前端静态资源（默认查找 dist-web/）')

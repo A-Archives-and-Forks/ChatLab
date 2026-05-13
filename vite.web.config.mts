@@ -12,18 +12,43 @@
 
 import { resolve } from 'path'
 import { spawn, type ChildProcess } from 'child_process'
+import * as net from 'net'
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import ui from '@nuxt/ui/vite'
 
-const BACKEND_PORT = 3400
+const BACKEND_PORT = 3110
 
+function isPortInUse(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = net.createServer()
+    server.once('error', () => resolve(true))
+    server.once('listening', () => {
+      server.close()
+      resolve(false)
+    })
+    server.listen(port, '127.0.0.1')
+  })
+}
+
+/**
+ * 自动启动 chatlab serve 后端的插件
+ * 仅在 CHATLAB_AUTO_SERVE=1 时生效（由 dev:web 脚本设置）
+ */
 function chatlabServePlugin(): Plugin {
   let serverProcess: ChildProcess | null = null
 
   return {
     name: 'chatlab-serve',
-    configureServer() {
+    async configureServer() {
+      if (process.env.CHATLAB_AUTO_SERVE !== '1') return
+
+      const inUse = await isPortInUse(BACKEND_PORT)
+      if (inUse) {
+        console.log(`[chatlab serve] 端口 ${BACKEND_PORT} 已在使用中，跳过启动`)
+        return
+      }
+
       const serverDir = resolve(__dirname, 'packages/server')
       serverProcess = spawn('npx', ['tsx', 'src/cli.ts', 'serve', '--port', String(BACKEND_PORT)], {
         cwd: serverDir,
@@ -105,7 +130,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3401,
+    port: 3100,
     proxy: {
       '/_web': `http://localhost:${BACKEND_PORT}`,
       '/api': `http://localhost:${BACKEND_PORT}`,
