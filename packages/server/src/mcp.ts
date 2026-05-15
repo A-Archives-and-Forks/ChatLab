@@ -12,7 +12,7 @@ import { z } from 'zod'
 import { loadConfig } from '@openchatlab/config'
 import { NodePathProvider, DatabaseManager } from '@openchatlab/node-runtime'
 import { getSessionMeta, getSessionOverview, getDatabaseSchema } from '@openchatlab/core'
-import { TOOL_REGISTRY } from '@openchatlab/tools'
+import { TOOL_REGISTRY, CoreDataProvider } from '@openchatlab/tools'
 import type { SessionListContext } from '@openchatlab/tools/src/definitions/sessions'
 
 let dbManager: DatabaseManager
@@ -112,7 +112,7 @@ export async function startMcpServer(): Promise<void> {
       const toolParams = { ...params } as Record<string, unknown>
       delete toolParams.session_id
 
-      const result = await tool.handler(toolParams, { db, sessionId })
+      const result = await tool.handler(toolParams, { db, sessionId, dataProvider: new CoreDataProvider(db) })
       return { content: [{ type: 'text' as const, text: result.content }] }
     })
   }

@@ -5,7 +5,6 @@
  */
 
 import type { ToolDefinition, ToolExecutionContext, ToolResult, JsonSchema } from '../types'
-import { getRecentMessages } from '@openchatlab/core'
 
 const inputSchema: JsonSchema = {
   type: 'object',
@@ -18,13 +17,13 @@ const inputSchema: JsonSchema = {
   },
 }
 
-function handler(params: Record<string, unknown>, context: ToolExecutionContext): ToolResult {
+async function handler(params: Record<string, unknown>, context: ToolExecutionContext): Promise<ToolResult> {
   const limit = (params.limit as number) || 20
-  const messages = getRecentMessages(context.db, { limit })
+  const result = await context.dataProvider!.getRecentMessages({ timeFilter: context.timeFilter, limit })
 
   const data = {
-    returned: messages.length,
-    messages: messages.map((m) => ({
+    returned: result.messages.length,
+    messages: result.messages.map((m) => ({
       sender: m.senderName,
       content: m.content,
       time: new Date(m.timestamp * 1000).toISOString(),
@@ -34,14 +33,7 @@ function handler(params: Record<string, unknown>, context: ToolExecutionContext)
   return {
     content: JSON.stringify(data),
     data,
-    rawMessages: messages.map((m) => ({
-      id: m.id,
-      senderId: m.senderId,
-      senderName: m.senderName,
-      senderPlatformId: m.senderPlatformId,
-      content: m.content,
-      timestamp: m.timestamp,
-    })),
+    rawMessages: result.messages,
   }
 }
 
@@ -50,4 +42,6 @@ export const recentMessagesTool: ToolDefinition = {
   description: '获取最近的聊天消息',
   inputSchema,
   handler,
+  category: 'core',
+  truncationStrategy: 'keep_last',
 }

@@ -5,7 +5,6 @@
  */
 
 import type { ToolDefinition, ToolExecutionContext, ToolResult, JsonSchema } from '../types'
-import { getMemberActivity } from '@openchatlab/core'
 
 const inputSchema: JsonSchema = {
   type: 'object',
@@ -18,9 +17,9 @@ const inputSchema: JsonSchema = {
   },
 }
 
-function handler(params: Record<string, unknown>, context: ToolExecutionContext): ToolResult {
+async function handler(params: Record<string, unknown>, context: ToolExecutionContext): Promise<ToolResult> {
   const top = (params.top as number) || 20
-  const members = getMemberActivity(context.db).slice(0, top)
+  const members = await context.dataProvider!.getMemberStats({ timeFilter: context.timeFilter, top })
 
   const data = {
     total: members.length,
@@ -42,4 +41,5 @@ export const memberStatsTool: ToolDefinition = {
   description: '获取成员活跃度排行，包括消息数量和占比',
   inputSchema,
   handler,
+  category: 'core',
 }

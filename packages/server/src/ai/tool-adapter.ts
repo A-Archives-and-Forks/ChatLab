@@ -6,6 +6,7 @@
  */
 
 import type { ToolDefinition, ToolExecutionContext } from '@openchatlab/tools'
+import { CoreDataProvider } from '@openchatlab/tools'
 import type { DatabaseAdapter } from '@openchatlab/core'
 import {
   preprocessMessages,
@@ -98,6 +99,7 @@ export function adaptToolsForAgent(
       const ctx = getContext()
       const execCtx: ToolExecutionContext = {
         db: ctx.db,
+        dataProvider: new CoreDataProvider(ctx.db),
         sessionId: ctx.sessionId,
         locale: ctx.locale,
       }

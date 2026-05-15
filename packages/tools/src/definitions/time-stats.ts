@@ -5,7 +5,6 @@
  */
 
 import type { ToolDefinition, ToolExecutionContext, ToolResult, JsonSchema } from '../types'
-import { getHourlyActivity, getWeekdayActivity, getDailyActivity } from '@openchatlab/core'
 
 const inputSchema: JsonSchema = {
   type: 'object',
@@ -19,23 +18,9 @@ const inputSchema: JsonSchema = {
   },
 }
 
-function handler(params: Record<string, unknown>, context: ToolExecutionContext): ToolResult {
-  const type = (params.type as string) || 'hourly'
-  let data: unknown
-
-  switch (type) {
-    case 'hourly':
-      data = getHourlyActivity(context.db)
-      break
-    case 'weekday':
-      data = getWeekdayActivity(context.db)
-      break
-    case 'daily':
-      data = getDailyActivity(context.db)
-      break
-    default:
-      data = getHourlyActivity(context.db)
-  }
+async function handler(params: Record<string, unknown>, context: ToolExecutionContext): Promise<ToolResult> {
+  const type = (params.type as 'hourly' | 'weekday' | 'daily') || 'hourly'
+  const data = await context.dataProvider!.getTimeStats(type, { timeFilter: context.timeFilter })
 
   return {
     content: JSON.stringify({ type, data }),
@@ -48,4 +33,5 @@ export const timeStatsTool: ToolDefinition = {
   description: '获取聊天活跃时段分布（按小时/星期/每日趋势）',
   inputSchema,
   handler,
+  category: 'core',
 }

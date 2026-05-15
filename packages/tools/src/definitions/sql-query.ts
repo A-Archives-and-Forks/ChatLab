@@ -5,7 +5,6 @@
  */
 
 import type { ToolDefinition, ToolExecutionContext, ToolResult, JsonSchema } from '../types'
-import { executeReadonlySql, getDatabaseSchema } from '@openchatlab/core'
 
 const inputSchema: JsonSchema = {
   type: 'object',
@@ -18,11 +17,11 @@ const inputSchema: JsonSchema = {
   required: ['sql'],
 }
 
-function handler(params: Record<string, unknown>, context: ToolExecutionContext): ToolResult {
+async function handler(params: Record<string, unknown>, context: ToolExecutionContext): Promise<ToolResult> {
   const sql = params.sql as string
 
   try {
-    const result = executeReadonlySql(context.db, sql)
+    const result = await context.dataProvider!.executeSql(sql)
     return {
       content: JSON.stringify(result),
       data: result,
@@ -39,8 +38,8 @@ const schemaInputSchema: JsonSchema = {
   properties: {},
 }
 
-function schemaHandler(_params: Record<string, unknown>, context: ToolExecutionContext): ToolResult {
-  const schema = getDatabaseSchema(context.db)
+async function schemaHandler(_params: Record<string, unknown>, context: ToolExecutionContext): Promise<ToolResult> {
+  const schema = await context.dataProvider!.getSchema()
   return {
     content: JSON.stringify({ tables: schema }),
     data: schema,

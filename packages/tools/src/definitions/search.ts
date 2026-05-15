@@ -5,7 +5,6 @@
  */
 
 import type { ToolDefinition, ToolExecutionContext, ToolResult, JsonSchema } from '../types'
-import { searchMessagesLike } from '@openchatlab/core'
 
 const inputSchema: JsonSchema = {
   type: 'object',
@@ -23,16 +22,19 @@ const inputSchema: JsonSchema = {
   required: ['keyword'],
 }
 
-function handler(params: Record<string, unknown>, context: ToolExecutionContext): ToolResult {
+async function handler(params: Record<string, unknown>, context: ToolExecutionContext): Promise<ToolResult> {
   const keyword = params.keyword as string
   const limit = (params.limit as number) || 50
 
-  const result = searchMessagesLike(context.db, keyword, { limit })
+  const result = await context.dataProvider!.searchMessages([keyword], {
+    timeFilter: context.timeFilter,
+    limit,
+  })
 
   const data = {
     total: result.total,
     returned: result.messages.length,
-    hasMore: result.hasMore,
+    hasMore: result.messages.length < result.total,
     messages: result.messages.map((m) => ({
       sender: m.senderName,
       content: m.content,
@@ -43,14 +45,7 @@ function handler(params: Record<string, unknown>, context: ToolExecutionContext)
   return {
     content: JSON.stringify(data),
     data,
-    rawMessages: result.messages.map((m) => ({
-      id: m.id,
-      senderId: m.senderId,
-      senderName: m.senderName,
-      senderPlatformId: m.senderPlatformId,
-      content: m.content,
-      timestamp: m.timestamp,
-    })),
+    rawMessages: result.messages,
   }
 }
 
@@ -59,4 +54,6 @@ export const searchTool: ToolDefinition = {
   description: '在聊天记录中搜索关键词，返回匹配的消息列表（发送者、内容、时间）',
   inputSchema,
   handler,
+  category: 'core',
+  truncationStrategy: 'keep_first',
 }
