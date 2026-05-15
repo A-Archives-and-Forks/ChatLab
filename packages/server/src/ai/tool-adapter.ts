@@ -15,6 +15,7 @@ import {
   type PreprocessableMessage,
   type TruncationStrategy,
 } from '@openchatlab/node-runtime'
+import { getServerAiLogger } from './logger'
 
 const DEFAULT_MAX_TOOL_RESULT_TOKENS = 8000
 
@@ -68,6 +69,7 @@ export function adaptToolsForAgent(
             maxToolResultTokens: DEFAULT_MAX_TOOL_RESULT_TOKENS,
             truncationStrategy: TOOL_TRUNCATION_STRATEGY[tool.name] ?? 'keep_last',
             extraDetails: (result.data ?? {}) as Record<string, unknown>,
+            logger: getServerAiLogger() ?? undefined,
           })
           return { content: [{ type: 'text', text: pipelineResult.text }], details: null }
         }

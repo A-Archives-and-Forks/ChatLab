@@ -19,6 +19,7 @@ import { registerSessionRoutes } from './routes/sessions'
 import { registerWebRoutes } from './routes/web'
 import { registerNlpRoutes } from './routes/nlp'
 import { registerAiRoutes } from './routes/ai'
+import { initServerAiLogger, closeServerAiLogger } from '../ai/logger'
 
 let server: FastifyInstance | null = null
 let dbManager: DatabaseManager | null = null
@@ -98,6 +99,8 @@ export async function startHttpServer(options?: HttpServerOptions): Promise<{
   dbManager = new DatabaseManager(pathProvider, { nativeBinding })
   convManager = new AIConversationManager(pathProvider.getAiDataDir(), { nativeBinding })
 
+  initServerAiLogger(pathProvider.getLogsDir())
+
   setAuthToken(token)
 
   server = createServer()
@@ -149,6 +152,7 @@ export async function stopHttpServer(): Promise<void> {
       dbManager.closeAll()
       dbManager = null
     }
+    closeServerAiLogger()
     server = null
   }
 }

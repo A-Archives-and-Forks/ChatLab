@@ -19,6 +19,7 @@ import {
 } from '@openchatlab/node-runtime'
 
 import { getDefaultAssistantConfig, buildPiModel } from './llm-config'
+import { getServerAiLogger } from './logger'
 
 export interface AgentStreamEvent {
   type: 'content' | 'think' | 'tool_start' | 'tool_result' | 'status' | 'done' | 'error'
@@ -190,12 +191,14 @@ export async function runServerAgent(options: RunAgentOptions): Promise<void> {
         }
       },
     }
+    const aiLogger = getServerAiLogger()
     const compressionResult = await checkAndCompress(
       conversationId,
       compressionConfig,
       systemPrompt,
       llmAdapter,
-      convManager
+      convManager,
+      aiLogger ?? undefined
     )
     if (compressionResult.compressed) {
       onEvent({ type: 'status', status: { phase: 'compression_done', round: 0, toolsUsed: 0 } })

@@ -6,6 +6,9 @@
  */
 
 export { BetterSqliteAdapter, openBetterSqliteDatabase } from './better-sqlite3-adapter'
+
+// AI Logger
+export { AiLogger, extractErrorInfo, extractErrorStack } from './ai'
 export { NodePathProvider } from './node-path-provider'
 export { DatabaseManager } from './database-manager'
 export { createJiebaNlpProvider } from './jieba-nlp-provider'
