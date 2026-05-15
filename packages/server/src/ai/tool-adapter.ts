@@ -102,7 +102,7 @@ export function adaptToolsForAgent(
         locale: ctx.locale,
       }
       try {
-        const result = tool.handler(params, execCtx)
+        const result = await tool.handler(params, execCtx)
 
         if (result.rawMessages && result.rawMessages.length > 0) {
           const textContent = applyPreprocessing(

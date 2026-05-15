@@ -87,7 +87,7 @@ export async function startMcpServer(): Promise<void> {
           listSessionIds: () => dbManager.listSessionIds(),
           openDb: (id) => dbManager.open(id),
         }
-        const result = tool.handler(params as Record<string, unknown>, context)
+        const result = await tool.handler(params as Record<string, unknown>, context)
         return { content: [{ type: 'text' as const, text: result.content }] }
       })
       continue
@@ -112,7 +112,7 @@ export async function startMcpServer(): Promise<void> {
       const toolParams = { ...params } as Record<string, unknown>
       delete toolParams.session_id
 
-      const result = tool.handler(toolParams, { db, sessionId })
+      const result = await tool.handler(toolParams, { db, sessionId })
       return { content: [{ type: 'text' as const, text: result.content }] }
     })
   }

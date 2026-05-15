@@ -6,4 +6,17 @@
  */
 
 export { TOOL_REGISTRY, getToolByName } from './registry'
-export type { ToolDefinition, ToolExecutionContext, ToolResult, JsonSchema } from './types'
+export type {
+  ToolDefinition,
+  ToolExecutionContext,
+  ToolResult,
+  JsonSchema,
+  RawMessage,
+  ToolDataProvider,
+  SearchMessagesResult,
+  MemberStatItem,
+  SchemaTableInfo,
+  TimeFilter,
+  ToolCategory,
+  TruncationStrategy,
+} from './types'
