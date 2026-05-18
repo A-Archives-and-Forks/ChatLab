@@ -6,7 +6,7 @@
 import { ipcMain } from 'electron'
 import * as worker from '../worker/workerManager'
 import type { IpcContext } from './types'
-import type { WordFrequencyParams, WordFrequencyResult, SupportedLocale, PosTagInfo } from '../nlp'
+import type { WordFrequencyParams, WordFrequencyResult, SupportedLocale, PosTagInfo } from '@openchatlab/core'
 import { getDictList, downloadDict, deleteDict, isDictDownloaded, type DictInfo } from '../nlp/dictManager'
 
 /**

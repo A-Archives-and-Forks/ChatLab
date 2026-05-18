@@ -6,7 +6,7 @@
 import Database from 'better-sqlite3'
 import * as fs from 'fs'
 import { closeDatabase, getDbPath, getCacheDir, openDatabaseAdapter, type TimeFilter } from '../core'
-import { getCache, CACHE_KEY_OVERVIEW, type OverviewCache } from '../../database/sessionCache'
+import { getCache, CACHE_KEY_OVERVIEW, type OverviewCache } from '@openchatlab/node-runtime'
 import {
   getAvailableYears as coreGetAvailableYears,
   getMemberActivity as coreGetMemberActivity,

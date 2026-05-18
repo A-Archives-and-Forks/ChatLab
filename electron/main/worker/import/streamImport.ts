@@ -69,7 +69,7 @@ function buildStreamImportDeps(requestId: string): StreamImportDeps {
     logger: buildElectronLogger(),
     async postImportHook(_db, sessionId) {
       try {
-        const { computeAndSetOverviewCache } = await import('../../database/sessionCache')
+        const { computeAndSetOverviewCache } = await import('@openchatlab/node-runtime')
         const dbPath = getDbPath(sessionId)
         const rawDb = new Database(dbPath)
         computeAndSetOverviewCache(new BetterSqliteAdapter(rawDb), sessionId, getCacheDir())

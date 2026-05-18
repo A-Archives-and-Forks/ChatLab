@@ -12,7 +12,7 @@
 import * as path from 'path'
 import { parentPort, workerData } from 'worker_threads'
 import { initDbDir, closeDatabase, closeAllDatabases, getCacheDir } from './core'
-import { getCache, setCache, deleteSessionCache } from '../database/sessionCache'
+import { getCache, setCache, deleteSessionCache } from '@openchatlab/node-runtime'
 import {
   getAvailableYears,
   getMemberActivity,
@@ -80,7 +80,7 @@ import {
   incrementalImport,
   analyzeNewImport,
 } from './import'
-import { initNlpDir } from '../nlp/segmenter'
+import { initNlpDir } from '@openchatlab/node-runtime'
 
 // 初始化数据库目录
 initDbDir(workerData.dbDir, workerData.cacheDir)

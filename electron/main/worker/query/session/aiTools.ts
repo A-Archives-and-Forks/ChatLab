@@ -9,7 +9,7 @@ import type { SessionSearchItem, SessionMessagesData } from '@openchatlab/core'
 import { openReadonlyDatabase } from './core'
 import { wrapAsDatabaseAdapter } from '../../core'
 import { hasFtsIndex } from '../fts'
-import { tokenizeQueryForFts } from '../../../nlp/ftsTokenizer'
+import { tokenizeQueryForFts } from '@openchatlab/node-runtime'
 
 // Re-export core types under Electron-local aliases
 export type { SessionSearchItem as SessionSearchResultItem }

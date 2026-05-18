@@ -7,8 +7,9 @@
 import { openDatabaseAdapter, type TimeFilter } from '../../core'
 import { getLanguagePreferenceAnalysis as coreGetLanguagePreferenceAnalysis } from '@openchatlab/core'
 import type { NlpProvider, PosTagResult } from '@openchatlab/core'
-import { getJieba, isStopword, MEANINGFUL_POS_TAGS } from '../../../nlp'
-import type { DictType } from '../../../nlp'
+import { getJieba } from '@openchatlab/node-runtime'
+import { isStopword, MEANINGFUL_POS_TAGS } from '@openchatlab/core'
+import type { DictType } from '@openchatlab/core'
 
 function createWorkerNlpProvider(dictType: DictType = 'default'): NlpProvider {
   return {

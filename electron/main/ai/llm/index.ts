@@ -23,8 +23,8 @@ import {
 } from '@openchatlab/node-runtime'
 
 // 新模型系统导出
-export { BUILTIN_PROVIDERS, getBuiltinProviderById } from './provider-registry'
-export { BUILTIN_MODELS, getBuiltinModelsByProvider, getBuiltinModelById } from './model-catalog'
+export { BUILTIN_PROVIDERS, getBuiltinProviderById } from '@openchatlab/core'
+export { BUILTIN_MODELS, getBuiltinModelsByProvider, getBuiltinModelById } from '@openchatlab/core'
 export {
   loadCustomProviders,
   addCustomProvider,
@@ -39,8 +39,8 @@ export * from './types'
 
 // ==================== 合并 Registry / Catalog（内置 + 自定义）====================
 
-import { BUILTIN_PROVIDERS, getBuiltinProviderById } from './provider-registry'
-import { BUILTIN_MODELS, getBuiltinModelsByProvider } from './model-catalog'
+import { BUILTIN_PROVIDERS, getBuiltinProviderById } from '@openchatlab/core'
+import { BUILTIN_MODELS, getBuiltinModelsByProvider } from '@openchatlab/core'
 import { loadCustomProviders } from './custom-provider-store'
 import { loadCustomModels } from './custom-model-store'
 import type { ProviderDefinition, ModelDefinition } from './model-types'
@@ -105,7 +105,7 @@ function getConfigPath(): string {
 
 import { addCustomProvider as _addCustomProviderDirect } from './custom-provider-store'
 import { addCustomModel as _addCustomModelDirect } from './custom-model-store'
-import { getBuiltinModelById } from './model-catalog'
+import { getBuiltinModelById } from '@openchatlab/core'
 
 const LEGACY_PROVIDER_FALLBACKS: Record<string, { name: string; defaultBaseUrl: string }> = {
   minimax: { name: 'MiniMax', defaultBaseUrl: 'https://api.minimaxi.com/v1' },

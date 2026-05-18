@@ -20,7 +20,7 @@ import {
   CACHE_KEY_MEMBERS,
   type OverviewCache,
   type MembersCache,
-} from '../../database/sessionCache'
+} from '@openchatlab/node-runtime'
 import {
   getSessionMeta,
   getSessionOverview,

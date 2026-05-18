@@ -17,7 +17,7 @@ import type { ParseResult } from '../../../src/types/base'
 import { migrateDatabase, needsMigration, CURRENT_SCHEMA_VERSION } from './migrations'
 import { getPathProvider } from '../path-context'
 import { ensureDir } from '../paths'
-import { deleteSessionCache } from './sessionCache'
+import { deleteSessionCache } from '@openchatlab/node-runtime'
 
 /**
  * 获取数据库目录

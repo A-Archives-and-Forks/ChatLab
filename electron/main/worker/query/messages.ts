@@ -9,7 +9,7 @@
 import { openDatabase, buildTimeFilter, type TimeFilter } from '../core'
 import { ensureAvatarColumn } from './basic'
 import { hasFtsIndex } from './fts'
-import { tokenizeQueryForFts } from '../../nlp/ftsTokenizer'
+import { tokenizeQueryForFts } from '@openchatlab/node-runtime'
 import {
   FULL_MSG_SELECT,
   FULL_MSG_FROM,

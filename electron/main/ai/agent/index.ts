@@ -22,7 +22,7 @@ import type { AgentConfig, AgentStreamChunk, AgentResult, SkillContext } from '.
 import type { AssistantConfig } from '../assistant/types'
 import { buildSystemPrompt } from './prompt-builder'
 import { extractThinkingContent, stripToolCallTags } from '@openchatlab/core'
-import { AgentEventHandler } from './event-handler'
+import { AgentEventHandler } from '@openchatlab/node-runtime'
 
 type SimpleHistoryMessage = { role: 'user' | 'assistant' | 'summary'; content: string }
 

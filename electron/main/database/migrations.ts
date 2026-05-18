@@ -10,7 +10,7 @@ import { CURRENT_SCHEMA_VERSION, runMigrations, needsMigration as coreNeedsMigra
 import type { DatabaseAdapter } from '@openchatlab/core'
 import { BetterSqliteAdapter, getChatDbMigrations } from '@openchatlab/node-runtime'
 import { t } from '../i18n'
-import { tokenizeForFts } from '../nlp/ftsTokenizer'
+import { tokenizeForFts } from '@openchatlab/node-runtime'
 
 export { CURRENT_SCHEMA_VERSION }
 
