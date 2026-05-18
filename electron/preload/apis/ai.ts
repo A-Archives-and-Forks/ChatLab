@@ -88,6 +88,9 @@ export interface ChatStreamChunk {
   content: string
   isFinished: boolean
   finishReason?: 'stop' | 'length' | 'error'
+  error?: string
+  thinking?: string
+  thinkingDone?: boolean
 }
 
 // Agent API 类型 — 从 shared/types 统一导入
@@ -792,7 +795,7 @@ export const llmApi = {
           if (data.error) {
             console.log('[preload] chatStream 收到错误:', data.error)
             if (onChunk) {
-              onChunk({ content: '', isFinished: true, finishReason: 'error' })
+              onChunk({ content: '', isFinished: true, finishReason: 'error', error: data.error })
             }
             ipcRenderer.removeListener('llm:streamChunk', handler)
             resolve({ success: false, error: data.error })

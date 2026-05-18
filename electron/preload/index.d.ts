@@ -558,6 +558,9 @@ interface LLMChatStreamChunk {
   content: string
   isFinished: boolean
   finishReason?: 'stop' | 'length' | 'error'
+  error?: string
+  thinking?: string
+  thinkingDone?: boolean
 }
 
 interface LlmApi {

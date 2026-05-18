@@ -22,7 +22,7 @@ import {
   type CompressionConfig,
   type CompressionLlmAdapter,
   completeSimple,
-  streamSimple,
+  runSimpleLlmStream,
   type PiMessage,
   type PiTextContent,
 } from '@openchatlab/node-runtime'
@@ -764,76 +764,22 @@ export function registerAIHandlers({ win }: IpcContext): void {
           return { success: false, error: t('llm.notConfigured') }
         }
         const piModel = buildPiModel(activeConfig)
-        const now = Date.now()
-        const systemMsg = messages.find((m) => m.role === 'system')
-        const nonSystemMsgs = messages.filter((m) => m.role !== 'system')
 
-        const eventStream = streamSimple(
-          piModel,
-          {
-            systemPrompt: systemMsg?.content,
-            messages: toPiSimpleMessages(nonSystemMsgs, now),
-          },
-          {
+        ;(async () => {
+          await runSimpleLlmStream({
+            messages,
             apiKey: activeConfig.apiKey,
+            piModel,
             temperature: options?.temperature,
             maxTokens: options?.maxTokens,
-          }
-        )
-
-        // 异步消费流，通过事件发送 chunks
-        ;(async () => {
-          let hasTerminalChunk = false
-          try {
-            for await (const event of eventStream) {
-              if (event.type === 'text_delta') {
-                win.webContents.send('llm:streamChunk', {
-                  requestId,
-                  chunk: { content: event.delta, isFinished: false },
-                })
-                continue
+            onChunk: (chunk) => {
+              if (chunk.error) {
+                win.webContents.send('llm:streamChunk', { requestId, error: chunk.error, chunk })
+              } else {
+                win.webContents.send('llm:streamChunk', { requestId, chunk })
               }
-
-              if (event.type === 'done') {
-                hasTerminalChunk = true
-                win.webContents.send('llm:streamChunk', {
-                  requestId,
-                  chunk: { content: '', isFinished: true, finishReason: event.reason === 'length' ? 'length' : 'stop' },
-                })
-                return
-              }
-
-              if (event.type === 'error') {
-                hasTerminalChunk = true
-                const errorMsg =
-                  event.error?.errorMessage || formatAIError(event.error, activeConfig.provider) || 'Unknown LLM error'
-                aiLogger.error('IPC', 'llm:chatStream LLM error', { requestId, error: errorMsg })
-                win.webContents.send('llm:streamChunk', {
-                  requestId,
-                  error: errorMsg,
-                  chunk: { content: '', isFinished: true, finishReason: 'error' },
-                })
-                return
-              }
-            }
-
-            if (!hasTerminalChunk) {
-              win.webContents.send('llm:streamChunk', {
-                requestId,
-                chunk: { content: '', isFinished: true, finishReason: 'stop' },
-              })
-            }
-          } catch (error) {
-            if (!hasTerminalChunk) {
-              const friendlyError = formatAIError(error, activeConfig.provider)
-              aiLogger.error('IPC', 'llm:chatStream stream error', { requestId, error: String(error) })
-              win.webContents.send('llm:streamChunk', {
-                requestId,
-                error: friendlyError,
-                chunk: { content: '', isFinished: true, finishReason: 'error' },
-              })
-            }
-          }
+            },
+          })
         })()
 
         return { success: true }

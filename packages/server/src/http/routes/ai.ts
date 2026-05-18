@@ -23,6 +23,7 @@ import {
   getChatOverview,
 } from '@openchatlab/core'
 import type { DataSnapshot, OwnerInfo, MentionedMember } from '@openchatlab/node-runtime'
+import { runSimpleLlmStream } from '@openchatlab/node-runtime'
 import { AGENT_TOOL_REGISTRY } from '@openchatlab/tools'
 import { adaptToolsForAgent } from '../../ai/tool-adapter'
 import { getDefaultAssistantConfig, buildPiModel } from '../../ai/llm-config'
@@ -397,6 +398,51 @@ export function registerAiRoutes(
   }>('/_web/ai/llm/remote-models', async (request) => {
     const { provider, apiKey, baseUrl, apiFormat } = request.body
     return fetchRemoteModels(provider, apiKey, baseUrl, apiFormat)
+  })
+
+  // ==================== LLM Simple Chat Stream ====================
+
+  server.post<{
+    Body: {
+      messages: Array<{ role: string; content: string }>
+      options?: { temperature?: number; maxTokens?: number }
+    }
+  }>('/_web/ai/llm/chat-stream', async (request, reply) => {
+    const { messages, options } = request.body
+
+    const aiDataDir = getAiDir(dbManager)
+    const llmConfig = getDefaultAssistantConfig(aiDataDir)
+    if (!llmConfig) {
+      return reply.code(400).send({ success: false, error: 'LLM service not configured' })
+    }
+
+    const piModel = buildPiModel(llmConfig)
+
+    reply.raw.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    })
+
+    const sendChunk = (data: unknown) => {
+      reply.raw.write(`event: chunk\ndata: ${JSON.stringify(data)}\n\n`)
+    }
+
+    try {
+      await runSimpleLlmStream({
+        messages,
+        apiKey: llmConfig.apiKey,
+        piModel,
+        temperature: options?.temperature,
+        maxTokens: options?.maxTokens,
+        onChunk: sendChunk,
+      })
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error)
+      sendChunk({ content: '', isFinished: true, finishReason: 'error', error: msg })
+    }
+
+    reply.raw.end()
   })
 
   // ==================== Tool Catalog ====================

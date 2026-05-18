@@ -132,6 +132,10 @@ export type { RemoteModel, FetchRemoteModelsResult, RemoteApiOptions } from './r
 // Re-exports from @mariozechner/pi-agent-core
 export type { AgentTool, AgentToolResult } from '@mariozechner/pi-agent-core'
 
+// LLM simple streaming
+export { runSimpleLlmStream } from './llm-stream'
+export type { LlmStreamChunk, RunSimpleLlmStreamOptions } from './llm-stream'
+
 // Re-exports from @mariozechner/pi-ai
 export { Type, completeSimple, streamSimple } from '@mariozechner/pi-ai'
 export type {

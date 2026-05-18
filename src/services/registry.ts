@@ -221,7 +221,40 @@ async function installAiApiShims(): Promise<void> {
       const { post: httpPost } = await import('./utils/http')
       return httpPost('/ai/llm/remote-models', { provider, apiKey, baseUrl, apiFormat })
     },
-    chatStream: () => Promise.resolve({ success: false, error: 'Not available in web mode' }),
+    chatStream: async (
+      messages: Array<{ role: string; content: string }>,
+      options?: { temperature?: number; maxTokens?: number },
+      onChunk?: (chunk: {
+        content: string
+        isFinished: boolean
+        finishReason?: string
+        error?: string
+        thinking?: string
+        thinkingDone?: boolean
+      }) => void
+    ): Promise<{ success: boolean; error?: string }> => {
+      try {
+        const { fetchSSE: fetchSSEStream } = await import('./utils/sse')
+        let streamError = ''
+        await fetchSSEStream({
+          url: '/_web/ai/llm/chat-stream',
+          method: 'POST',
+          body: { messages, options },
+          onEvent: ({ data }) => {
+            try {
+              const chunk = JSON.parse(data)
+              if (chunk.error) streamError = chunk.error
+              if (onChunk) onChunk(chunk)
+            } catch {
+              // skip malformed JSON
+            }
+          },
+        })
+        return streamError ? { success: false, error: streamError } : { success: true }
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : String(error) }
+      }
+    },
     addCustomModel: async (input: Record<string, unknown>) => {
       const { post: httpPost } = await import('./utils/http')
       return httpPost('/ai/llm/custom-models', input)
@@ -367,6 +400,39 @@ async function installAiApiShims(): Promise<void> {
   }
 
   ;(window as any).agentApi = agentApiImpl
+
+  // cacheApi shim (server-side file operations)
+  ;(window as any).cacheApi = {
+    saveToDownloads: async (filename: string, dataUrl: string) => {
+      try {
+        const resp = await fetch('/_web/cache/save-to-downloads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename, dataUrl }),
+        })
+        return await resp.json()
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : String(error) }
+      }
+    },
+    showInFolder: async (filePath: string) => {
+      try {
+        const resp = await fetch('/_web/cache/show-in-folder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filePath }),
+        })
+        return await resp.json()
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : String(error) }
+      }
+    },
+    getInfo: () => Promise.resolve({ success: true, caches: [] }),
+    clear: () => Promise.resolve({ success: true }),
+    openDir: () => Promise.resolve({ success: true }),
+    getLatestImportLog: () => Promise.resolve({ success: true }),
+    getDataDir: () => Promise.resolve({ success: true, path: '' }),
+  }
 }
 
 async function initWebBrowserAdapters(): Promise<void> {
